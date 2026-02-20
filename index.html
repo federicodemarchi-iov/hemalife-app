@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#005495">
 <title>HemaLife - IOV</title>
 <script>
-// Generazione Icona PWA Dinamica
+// Icona PWA IOV
 const ic=document.createElement('canvas');ic.width=512;ic.height=512;const ix=ic.getContext('2d');
 const ig=ix.createLinearGradient(0,0,512,512);ig.addColorStop(0,'#005495');ig.addColorStop(1,'#003366');
 ix.fillStyle=ig;ix.beginPath();ix.roundRect(0,0,512,512,96);ix.fill();
@@ -18,7 +18,6 @@ ix.bezierCurveTo(357,225,256,100,256,100);ix.fill();
 ix.fillStyle='#005495';ix.fillRect(240,240,32,80);ix.fillRect(224,264,64,32);
 const iu=ic.toDataURL('image/png');
 const l1=document.createElement('link');l1.rel='apple-touch-icon';l1.href=iu;document.head.appendChild(l1);
-const l2=document.createElement('link');l2.rel='icon';l2.type='image/png';l2.href=iu;document.head.appendChild(l2);
 </script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -28,13 +27,15 @@ body { margin:0; font-family:'DM Sans',sans-serif; background:var(--bg); color:v
 .header img { height:35px; }
 .container { padding:15px; max-width:600px; margin:0 auto; padding-bottom:100px; }
 .card { background:white; border-radius:20px; padding:20px; margin-bottom:15px; border:1px solid #E2E8F0; box-shadow:0 4px 6px rgba(0,0,0,0.02); }
-.btn { border:none; border-radius:12px; padding:14px; font-weight:700; width:100%; cursor:pointer; font-size:16px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; margin-bottom:10px; }
+.btn { border:none; border-radius:12px; padding:14px; font-weight:700; width:100%; cursor:pointer; font-size:16px; transition:0.2s; display:block; text-align:center; margin-bottom:10px; }
 .bp { background: linear-gradient(135deg, var(--iov-blue), var(--iov-dark)); color:white; }
 .bs { background:#E2E8F0; color:#475569; }
 .lb { font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase; margin-bottom:8px; display:block; }
-input { width:100%; padding:12px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:16px; margin-bottom:15px; box-sizing: border-box; }
+input { width:100%; padding:12px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:16px; margin-bottom:15px; box-sizing: border-box; outline:none; }
+input:focus { border-color: var(--iov-blue); }
 .nav { position:fixed; bottom:0; left:0; right:0; background:white; display:flex; border-top:1px solid #E2E8F0; padding:10px 0 25px; justify-content:space-around; z-index:1000; }
-.nav-item { font-size:10px; font-weight:700; color:#64748B; text-align:center; flex:1; cursor:pointer; }
+.nav-item { font-size:24px; color:#64748B; text-align:center; flex:1; cursor:pointer; display:flex; flex-direction:column; align-items:center; }
+.nav-item span { font-size:10px; font-weight:700; margin-top:4px; }
 .nav-item.active { color:var(--iov-blue); }
 </style>
 </head>
@@ -44,24 +45,45 @@ input { width:100%; padding:12px; border:1.5px solid #CBD5E1; border-radius:10px
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
 
 <script type="text/babel">
-const { useState, useEffect } = React;
-// Estrazione componenti Recharts
-const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = window.Recharts;
-
 const S = {
   get: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set: (k, v) => localStorage.setItem(k, JSON.stringify(v))
 };
 
+// Grafico indistruttibile fatto a mano
+function BloodChart({ data }) {
+  if (!data || data.length === 0) return <div style={{textAlign:'center', color:'#94A3B8', padding:'40px 0'}}>Nessun dato inserito</div>;
+  
+  const w = 300, h = 140, p = 20;
+  const vals = data.map(d => d.hb);
+  const min = Math.min(...vals, 10) * 0.9;
+  const max = Math.max(...vals, 16) * 1.1;
+  
+  const sx = i => p + (i / Math.max(1, data.length - 1)) * (w - p * 2);
+  const sy = v => max === min ? h/2 : h - p - ((v - min) / (max - min)) * (h - p * 2);
+  const path = data.map((d, i) => `${i === 0 ? 'M' : 'L'}${sx(i)},${sy(d.hb)}`).join(' ');
+
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} style={{width:'100%', height:'auto', marginTop:10, overflow:'visible'}}>
+      <path d={path} fill="none" stroke="#005495" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+      {data.map((d, i) => (
+        <g key={i}>
+          <circle cx={sx(i)} cy={sy(d.hb)} r="5" fill="#005495" stroke="#fff" strokeWidth="2" />
+          <text x={sx(i)} y={h} fontSize="10" fill="#64748B" textAnchor="middle">{d.data}</text>
+          <text x={sx(i)} y={sy(d.hb) - 10} fontSize="12" fill="#1E293B" fontWeight="bold" textAnchor="middle">{d.hb}</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 function App() {
-  const [view, setView] = useState('home');
-  const [paziente, setPaziente] = useState(S.get('paziente', 'Paziente'));
-  const [valori, setValori] = useState(S.get('valori', []));
-  const [tempHb, setTempHb] = useState('');
+  const [view, setView] = React.useState('home');
+  const [paziente, setPaziente] = React.useState(S.get('paziente', 'Paziente'));
+  const [valori, setValori] = React.useState(S.get('valori', []));
+  const [tempHb, setTempHb] = React.useState('');
 
   const salvaDato = () => {
     if(!tempHb) return;
@@ -69,7 +91,7 @@ function App() {
       data: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}), 
       hb: parseFloat(tempHb)
     };
-    const nuoviValori = [...valori, nuovoDato].slice(-10); // Tiene ultimi 10
+    const nuoviValori = [...valori, nuovoDato].slice(-7); // Tiene solo gli ultimi 7 dati per pulizia visiva
     setValori(nuoviValori);
     S.set('valori', nuoviValori);
     setTempHb('');
@@ -85,10 +107,10 @@ function App() {
 
       <div className="container">
         {view === 'home' && (
-          <div className="anim">
+          <div>
             <div className="card">
               <h2 style={{margin:0, color:'var(--iov-blue)'}}>Buongiorno, {paziente}</h2>
-              <p style={{fontSize:'14px', color:'#64748B'}}>Oggi è il {new Date().toLocaleDateString('it-IT')}</p>
+              <p style={{fontSize:'14px', color:'#64748B', margin:'5px 0 0 0'}}>Oggi è il {new Date().toLocaleDateString('it-IT')}</p>
             </div>
 
             <div className="card">
@@ -98,28 +120,14 @@ function App() {
 
             <div className="card">
               <span className="lb">Andamento Emoglobina (Hb)</span>
-              <div style={{height: 220, width: '100%', marginTop: 10}}>
-                {valori.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={valori}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                      <XAxis dataKey="data" tick={{fontSize: 10}} />
-                      <YAxis domain={['auto', 'auto']} tick={{fontSize: 10}} />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="hb" stroke="#005495" strokeWidth={3} dot={{r:6}} activeDot={{r:8}} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div style={{textAlign:'center', color:'#94a3b8', paddingTop:60}}>Nessun dato inserito</div>
-                )}
-              </div>
+              <BloodChart data={valori} />
             </div>
           </div>
         )}
 
         {view === 'esami' && (
           <div className="card">
-            <h3>Nuova Rilevazione</h3>
+            <h3 style={{margin:'0 0 15px 0'}}>Nuova Rilevazione</h3>
             <span className="lb">Valore Emoglobina (g/dL)</span>
             <input 
               type="number" 
@@ -135,23 +143,29 @@ function App() {
 
         {view === 'settings' && (
           <div className="card">
-            <h3>Impostazioni Profilo</h3>
-            <span className="lb">Nome e Cognome</span>
+            <h3 style={{margin:'0 0 15px 0'}}>Impostazioni Profilo</h3>
+            <span className="lb">Nome e Cognome Paziente</span>
             <input 
               type="text" 
               value={paziente} 
               onChange={(e) => {setPaziente(e.target.value); S.set('paziente', e.target.value)}} 
             />
             <button className="btn bp" onClick={() => setView('home')}>Torna alla Home</button>
-            <button className="btn bs" style={{color:'red'}} onClick={() => {if(confirm('Cancellare i dati?')){localStorage.clear(); location.reload()}}}>Resetta App</button>
+            <button className="btn bs" style={{color:'#E11D48'}} onClick={() => {if(window.confirm('Cancellare tutti i dati salvati?')){localStorage.clear(); window.location.reload()}}}>Resetta App</button>
           </div>
         )}
       </div>
 
       <div className="nav">
-        <div className={`nav-item ${view==='home'?'active':''}`} onClick={()=>setView('home')}>🏠<br/>Home</div>
-        <div className={`nav-item ${view==='esami'?'active':''}`} onClick={()=>setView('esami')}>🩸<br/>Esami</div>
-        <div className={`nav-item ${view==='settings'?'active':''}`} onClick={()=>setView('settings')}>⚙️<br/>Profilo</div>
+        <div className={`nav-item ${view==='home'?'active':''}`} onClick={()=>setView('home')}>
+          🏠<span>HOME</span>
+        </div>
+        <div className={`nav-item ${view==='esami'?'active':''}`} onClick={()=>setView('esami')}>
+          🩸<span>ESAMI</span>
+        </div>
+        <div className={`nav-item ${view==='settings'?'active':''}`} onClick={()=>setView('settings')}>
+          ⚙️<span>PROFILO</span>
+        </div>
       </div>
     </div>
   );
