@@ -22,7 +22,7 @@ const iu=ic.toDataURL('image/png');
 document.getElementById('app-icon').href=iu;document.getElementById('favicon').href=iu;
 const mf={name:"HemaLife",short_name:"HemaLife",start_url:location.href.split('?')[0],display:"standalone",background_color:"#F8FAFC",theme_color:"#F8FAFC",orientation:"portrait",icons:[{src:iu,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
 const ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));document.head.appendChild(ml);
-if('serviceWorker' in navigator){const sw=`const C='hl-v5';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.origin+self.location.pathname])));self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim()});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)))})`;navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});}
+if('serviceWorker' in navigator){const sw=`const C='hl-v6';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.origin+self.location.pathname])));self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim()});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)))})`;navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});}
 </script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -99,17 +99,22 @@ Download:()=><svg width="20" height="20" fill="none" stroke="currentColor" strok
 };
 const SYMPTOMS=[{id:"fatigue",label:"Stanchezza",emoji:"😴",color:"#F59E0B"},{id:"fever",label:"Febbre",emoji:"🌡️",color:"#EF4444"},{id:"bruising",label:"Lividi",emoji:"🟣",color:"#8B5CF6"},{id:"nausea",label:"Nausea",emoji:"🤢",color:"#10B981"},{id:"pain",label:"Dolore osseo",emoji:"🦴",color:"#F97316"},{id:"infection",label:"Segni infezione",emoji:"🔴",color:"#DC2626"},{id:"bleeding",label:"Sanguinamento",emoji:"🩸",color:"#E11D48"},{id:"appetite",label:"Inappetenza",emoji:"🍽️",color:"#004B87"},{id:"breath",label:"Dispnea",emoji:"💨",color:"#00A9E0"},{id:"sweats",label:"Sudoraz. notturna",emoji:"🌙",color:"#7C3AED"}];
 const MCOLORS=["#004B87","#00A9E0","#10B981","#F59E0B","#EF4444","#8B5CF6","#14B8A6","#F97316"];
-const DEMO_BLOOD={wbc:[{date:"01/01",value:3.2},{date:"08/01",value:3.8},{date:"15/01",value:2.1},{date:"22/01",value:1.4},{date:"29/01",value:2.9},{date:"05/02",value:4.1},{date:"12/02",value:5.2},{date:"19/02",value:5.8}],hb:[{date:"01/01",value:11.2},{date:"08/01",value:10.8},{date:"15/01",value:9.4},{date:"22/01",value:8.2},{date:"29/01",value:8.9},{date:"05/02",value:10.1},{date:"12/02",value:11.0},{date:"19/02",value:11.8}],plt:[{date:"01/01",value:180},{date:"08/01",value:150},{date:"15/01",value:90},{date:"22/01",value:45},{date:"29/01",value:78},{date:"05/02",value:120},{date:"12/02",value:155},{date:"19/02",value:175}]};
+
+// CHANGED: Wipe the demo data completely clean so it starts empty
+const EMPTY_BLOOD={wbc:[],hb:[],plt:[]};
 
 function BloodChart({data,color,normalMin,normalMax,unit,label}){
-if(!data || data.length === 0) return <div style={{padding:20, textAlign:'center', color:'#64748B'}}>Nessun dato registrato.</div>;
+if(!data || data.length === 0) return <div style={{padding:20, textAlign:'center', color:'#64748B', background:'#FFFFFF', borderRadius:18, border:'1px solid #E2E8F0', marginBottom:14}}>Nessun dato registrato.</div>;
 const vals=data.map(d=>d.value),lo=Math.min(...vals,normalMin)*0.82,hi=Math.max(...vals,normalMax)*1.18;
-const w=300,h=110,p=32,sx=i=>p+(i/(data.length-1))*(w-p*2),sy=v=>h-p-((v-lo)/(hi-lo))*(h-p*2);
+const w=300,h=110,p=32,sx=i=>p+(i/(data.length-1||1))*(w-p*2),sy=v=>h-p-((v-lo)/(hi-lo||1))*(h-p*2);
 const path=data.map((d,i)=>`${i===0?'M':'L'}${sx(i)},${sy(d.value)}`).join(' ');
 const ny1=sy(normalMax),ny2=sy(normalMin),last=vals[vals.length-1],ok=last>=normalMin&&last<=normalMax;
 return(<div style={{background:'#FFFFFF',borderRadius:18,padding:'18px 14px',marginBottom:14, border:'1px solid #E2E8F0', boxShadow:'0 2px 10px rgba(0,0,0,0.02)'}}>
 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,padding:'0 4px'}}><span style={{color:'#64748B',fontSize:13, fontWeight:600}}>{label}</span><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{color:ok?'#10B981':'#EF4444',fontSize:24,fontWeight:700,fontFamily:"'Space Mono',monospace"}}>{last}</span><span style={{color:'#64748B',fontSize:11}}>{unit}</span><span style={{background:ok?'#D1FAE5':'#FEE2E2',color:ok?'#059669':'#DC2626',fontSize:9,padding:'3px 8px',borderRadius:99,fontWeight:700}}>{ok?'OK':'!'}</span></div></div>
-<svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{width:'100%',height:'auto'}}><rect x={p} y={ny1} width={w-p*2} height={ny2-ny1} fill={color} opacity={0.07} rx={4}/><line x1={p} y1={ny1} x2={w-p} y2={ny1} stroke={color} strokeWidth={0.5} strokeDasharray="4,4" opacity={0.4}/><line x1={p} y1={ny2} x2={w-p} y2={ny2} stroke={color} strokeWidth={0.5} strokeDasharray="4,4" opacity={0.4}/><defs><linearGradient id={`g-${label}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity={0.25}/><stop offset="100%" stopColor={color} stopOpacity={0}/></linearGradient></defs><path d={`${path} L${sx(data.length-1)},${h-p} L${sx(0)},${h-p} Z`} fill={`url(#g-${label})`}/><path d={path} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>{data.map((d,i)=><circle key={i} cx={sx(i)} cy={sy(d.value)} r={i===data.length-1?5:2.5} fill={i===data.length-1?color:'#FFFFFF'} stroke={color} strokeWidth={i===data.length-1?2:1.5}/>)}{data.map((d,i)=>i%2===0||i===data.length-1?<text key={'t'+i} x={sx(i)} y={h-8} textAnchor="middle" fill="#64748B" fontSize={9} fontFamily="DM Sans">{d.date}</text>:null)}</svg>
+<svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{width:'100%',height:'auto'}}><rect x={p} y={ny1} width={w-p*2} height={ny2-ny1} fill={color} opacity={0.07} rx={4}/><line x1={p} y1={ny1} x2={w-p} y2={ny1} stroke={color} strokeWidth={0.5} strokeDasharray="4,4" opacity={0.4}/><line x1={p} y1={ny2} x2={w-p} y2={ny2} stroke={color} strokeWidth={0.5} strokeDasharray="4,4" opacity={0.4}/><defs><linearGradient id={`g-${label}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity={0.25}/><stop offset="100%" stopColor={color} stopOpacity={0}/></linearGradient></defs>
+{data.length>1&&<path d={`${path} L${sx(data.length-1)},${h-p} L${sx(0)},${h-p} Z`} fill={`url(#g-${label})`}/>}
+{data.length>1&&<path d={path} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>}
+{data.map((d,i)=><circle key={i} cx={sx(i)} cy={sy(d.value)} r={i===data.length-1?5:2.5} fill={i===data.length-1?color:'#FFFFFF'} stroke={color} strokeWidth={i===data.length-1?2:1.5}/>)}{data.map((d,i)=>i%2===0||i===data.length-1?<text key={'t'+i} x={sx(i)} y={h-8} textAnchor="middle" fill="#64748B" fontSize={9} fontFamily="DM Sans">{d.date}</text>:null)}</svg>
 </div>);
 }
 
@@ -186,7 +191,8 @@ setLoaded(true);
 const[patientName,setPN]=useState(()=>S.get('name',''));
 const[meds,setMeds]=useState(()=>S.get('meds',[]));
 const[apts,setApts]=useState(()=>S.get('apts',[]));
-const[blood,setBlood]=useState(()=>S.get('blood_v2', DEMO_BLOOD));
+// CHANGED: key to blood_v3 to ensure a clean wipe for anyone opening the app
+const[blood,setBlood]=useState(()=>S.get('blood_v3', EMPTY_BLOOD));
 const[tab,setTab]=useState("home");
 const[taken,setTaken]=useState(()=>S.get('tk_'+S.today(),{}));
 const[symIn,setSymIn]=useState({});
@@ -242,7 +248,7 @@ const saveBlood = () => {
         if(!val) return;
         const num = parseFloat(val.replace(',','.'));
         if(isNaN(num)) return;
-        const arr = newData[key];
+        const arr = newData[key] || [];
         const exist = arr.findIndex(x => x.date === fDate);
         if(exist >= 0) arr[exist] = { date: fDate, value: num };
         else arr.push({ date: fDate, value: num });
@@ -255,7 +261,8 @@ const saveBlood = () => {
     updateLog('plt', bfPlt);
 
     setBlood(newData);
-    S.set('blood_v2', newData);
+    // CHANGED: Save under the new v3 key
+    S.set('blood_v3', newData);
     setShowBF(false);
     setBfWbc(''); setBfHb(''); setBfPlt('');
 };
@@ -418,7 +425,7 @@ return<div key={pi} style={{marginBottom:16}}><div style={{display:'flex',alignI
 {apts.length===0&&<p style={{fontSize:13,color:'#64748B'}}>Nessun appuntamento</p>}
 {apts.sort((a,b)=>a.date.localeCompare(b.date)).map(a=>{const t=APT_TYPES[a.type]||APT_TYPES.altro;return<div key={a.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderTop:'1px solid #E2E8F0'}}><span style={{fontSize:16}}>{t.emoji}</span><div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:14,color:'#0F172A'}}>{t.label}</div><div style={{fontSize:11,color:'#64748B'}}>{fmtDate(a.date)}{a.time&&` · ${a.time}`}{a.location&&` · ${a.location}`}</div></div><button onClick={()=>openAF(a)} style={{background:'none',border:'none',color:'#64748B',cursor:'pointer'}}><I.Edit/></button><button onClick={()=>{const n=apts.filter(x=>x.id!==a.id);setApts(n);S.set('apts',n)}} style={{background:'none',border:'none',color:'#EF4444',cursor:'pointer'}}><I.Trash/></button></div>})}
 </div>
-<button onClick={()=>{['setup','name','meds','apts','slog','blood_v2','tk_'+S.today()].forEach(k=>localStorage.removeItem('hl_'+k));location.reload()}} className="btn bd" style={{width:'100%',marginTop:8}}>Reimposta tutti i dati dell'App</button>
+<button onClick={()=>{['setup','name','meds','apts','slog','blood_v3','tk_'+S.today()].forEach(k=>localStorage.removeItem('hl_'+k));location.reload()}} className="btn bd" style={{width:'100%',marginTop:8}}>Reimposta tutti i dati dell'App</button>
 </div>)}
 </div>
 </main>
