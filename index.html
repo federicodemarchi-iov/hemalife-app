@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#005495">
 <title>HemaLife - IOV</title>
 <script>
+// Generazione Icona PWA Dinamica
 const ic=document.createElement('canvas');ic.width=512;ic.height=512;const ix=ic.getContext('2d');
 const ig=ix.createLinearGradient(0,0,512,512);ig.addColorStop(0,'#005495');ig.addColorStop(1,'#003366');
 ix.fillStyle=ig;ix.beginPath();ix.roundRect(0,0,512,512,96);ix.fill();
@@ -22,19 +23,18 @@ const l2=document.createElement('link');l2.rel='icon';l2.type='image/png';l2.hre
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root { --iov-blue: #005495; --iov-dark: #003366; --bg: #F1F5F9; --text: #1E293B; }
-body { margin:0; font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+body { margin:0; font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); -webkit-font-smoothing: antialiased; }
 .header { background:white; padding:15px; text-align:center; border-bottom:3px solid var(--iov-blue); position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
-.header img { height:35px; margin-bottom:5px; }
+.header img { height:35px; }
 .container { padding:15px; max-width:600px; margin:0 auto; padding-bottom:100px; }
 .card { background:white; border-radius:20px; padding:20px; margin-bottom:15px; border:1px solid #E2E8F0; box-shadow:0 4px 6px rgba(0,0,0,0.02); }
 .btn { border:none; border-radius:12px; padding:14px; font-weight:700; width:100%; cursor:pointer; font-size:16px; transition:0.2s; display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; margin-bottom:10px; }
-.bp { background:linear-gradient(135deg, var(--iov-blue), var(--iov-dark)); color:white; }
+.bp { background: linear-gradient(135deg, var(--iov-blue), var(--iov-dark)); color:white; }
 .bs { background:#E2E8F0; color:#475569; }
 .lb { font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase; margin-bottom:8px; display:block; }
-input, select, textarea { width:100%; padding:12px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:16px; margin-bottom:15px; outline:none; }
-input:focus { border-color: var(--iov-blue); }
-.nav { position:fixed; bottom:0; left:0; right:0; background:white; display:flex; border-top:1px solid #E2E8F0; padding:10px 0 25px; justify-content:space-around; }
-.nav-item { font-size:10px; font-weight:700; color:#64748B; text-align:center; flex:1; }
+input { width:100%; padding:12px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:16px; margin-bottom:15px; box-sizing: border-box; }
+.nav { position:fixed; bottom:0; left:0; right:0; background:white; display:flex; border-top:1px solid #E2E8F0; padding:10px 0 25px; justify-content:space-around; z-index:1000; }
+.nav-item { font-size:10px; font-weight:700; color:#64748B; text-align:center; flex:1; cursor:pointer; }
 .nav-item.active { color:var(--iov-blue); }
 </style>
 </head>
@@ -44,13 +44,14 @@ input:focus { border-color: var(--iov-blue); }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
 
 <script type="text/babel">
 const { useState, useEffect } = React;
-const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts;
+// Estrazione componenti Recharts
+const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = window.Recharts;
 
-// --- STORAGE HELPERS ---
 const S = {
   get: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set: (k, v) => localStorage.setItem(k, JSON.stringify(v))
@@ -60,47 +61,20 @@ function App() {
   const [view, setView] = useState('home');
   const [paziente, setPaziente] = useState(S.get('paziente', 'Paziente'));
   const [valori, setValori] = useState(S.get('valori', []));
+  const [tempHb, setTempHb] = useState('');
 
-  const Home = () => (
-    <div className="container">
-      <div className="card">
-        <h2 style={{margin:0, color:'var(--iov-blue)'}}>Buongiorno, {paziente}</h2>
-        <p style={{fontSize:'14px', color:'#64748B'}}>Oggi è il {new Date().toLocaleDateString('it-IT')}</p>
-      </div>
-
-      <div className="card">
-        <span className="lb">Diario Rapido</span>
-        <button className="btn bp" onClick={() => setView('sintomi')}>📝 Registra Sintomi</button>
-        <button className="btn bs" onClick={() => setView('esami')}>🩸 Inserisci Esami</button>
-      </div>
-
-      <div className="card">
-        <span className="lb">Andamento Globale</span>
-        <div style={{height: 200}}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={valori}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="data" hide />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="hb" stroke="#005495" strokeWidth={3} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
-  );
-
-  const Settings = () => (
-    <div className="container">
-      <div className="card">
-        <h3 style={{marginTop:0}}>Impostazioni Profilo</h3>
-        <span className="lb">Nome Paziente</span>
-        <input type="text" value={paziente} onChange={(e) => {setPaziente(e.target.value); S.set('paziente', e.target.value)}} />
-      </div>
-      <button className="btn bp" onClick={() => setView('home')}>Salva e Torna</button>
-    </div>
-  );
+  const salvaDato = () => {
+    if(!tempHb) return;
+    const nuovoDato = {
+      data: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}), 
+      hb: parseFloat(tempHb)
+    };
+    const nuoviValori = [...valori, nuovoDato].slice(-10); // Tiene ultimi 10
+    setValori(nuoviValori);
+    S.set('valori', nuoviValori);
+    setTempHb('');
+    setView('home');
+  };
 
   return (
     <div style={{minHeight:'100vh'}}>
@@ -109,28 +83,75 @@ function App() {
         <div style={{fontSize:'11px', fontWeight:700, color:'var(--iov-blue)', textTransform:'uppercase'}}>HemaLife - Area Paziente</div>
       </div>
 
-      {view === 'home' && <Home />}
-      {view === 'settings' && <Settings />}
-      {view === 'esami' && (
-        <div className="container">
+      <div className="container">
+        {view === 'home' && (
+          <div className="anim">
+            <div className="card">
+              <h2 style={{margin:0, color:'var(--iov-blue)'}}>Buongiorno, {paziente}</h2>
+              <p style={{fontSize:'14px', color:'#64748B'}}>Oggi è il {new Date().toLocaleDateString('it-IT')}</p>
+            </div>
+
+            <div className="card">
+              <span className="lb">Azioni Veloci</span>
+              <button className="btn bp" onClick={() => setView('esami')}>🩸 Inserisci Emoglobina</button>
+            </div>
+
+            <div className="card">
+              <span className="lb">Andamento Emoglobina (Hb)</span>
+              <div style={{height: 220, width: '100%', marginTop: 10}}>
+                {valori.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={valori}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                      <XAxis dataKey="data" tick={{fontSize: 10}} />
+                      <YAxis domain={['auto', 'auto']} tick={{fontSize: 10}} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="hb" stroke="#005495" strokeWidth={3} dot={{r:6}} activeDot={{r:8}} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div style={{textAlign:'center', color:'#94a3b8', paddingTop:60}}>Nessun dato inserito</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {view === 'esami' && (
           <div className="card">
-            <h3>Inserisci Emoglobina (Hb)</h3>
-            <input type="number" step="0.1" placeholder="Valore Hb" id="hbval" />
-            <button className="btn bp" onClick={() => {
-              const val = document.getElementById('hbval').value;
-              const n = [...valori, {data: new Date().toLocaleDateString(), hb: parseFloat(val)}];
-              setValori(n); S.set('valori', n);
-              setView('home');
-            }}>Salva Dato</button>
+            <h3>Nuova Rilevazione</h3>
+            <span className="lb">Valore Emoglobina (g/dL)</span>
+            <input 
+              type="number" 
+              step="0.1" 
+              placeholder="es. 12.5" 
+              value={tempHb} 
+              onChange={(e) => setTempHb(e.target.value)} 
+            />
+            <button className="btn bp" onClick={salvaDato}>Salva nel Diario</button>
             <button className="btn bs" onClick={() => setView('home')}>Annulla</button>
           </div>
-        </div>
-      )}
+        )}
+
+        {view === 'settings' && (
+          <div className="card">
+            <h3>Impostazioni Profilo</h3>
+            <span className="lb">Nome e Cognome</span>
+            <input 
+              type="text" 
+              value={paziente} 
+              onChange={(e) => {setPaziente(e.target.value); S.set('paziente', e.target.value)}} 
+            />
+            <button className="btn bp" onClick={() => setView('home')}>Torna alla Home</button>
+            <button className="btn bs" style={{color:'red'}} onClick={() => {if(confirm('Cancellare i dati?')){localStorage.clear(); location.reload()}}}>Resetta App</button>
+          </div>
+        )}
+      </div>
 
       <div className="nav">
         <div className={`nav-item ${view==='home'?'active':''}`} onClick={()=>setView('home')}>🏠<br/>Home</div>
         <div className={`nav-item ${view==='esami'?'active':''}`} onClick={()=>setView('esami')}>🩸<br/>Esami</div>
-        <div className={`nav-item ${view==='settings'?'active':''}`} onClick={()=>setView('settings')}>⚙️<br/>Impostazioni</div>
+        <div className={`nav-item ${view==='settings'?'active':''}`} onClick={()=>setView('settings')}>⚙️<br/>Profilo</div>
       </div>
     </div>
   );
