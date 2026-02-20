@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#005495">
 <title>HemaLife - IOV</title>
+
 <script>
 const ic=document.createElement('canvas');ic.width=512;ic.height=512;const ix=ic.getContext('2d');
 const ig=ix.createLinearGradient(0,0,512,512);ig.addColorStop(0,'#005495');ig.addColorStop(1,'#003366');
@@ -16,35 +17,90 @@ ix.bezierCurveTo(155,360,200,410,256,410);ix.bezierCurveTo(312,410,357,360,357,3
 ix.bezierCurveTo(357,225,256,100,256,100);ix.fill();
 ix.fillStyle='#005495';ix.fillRect(240,240,32,80);ix.fillRect(224,264,64,32);
 const iu=ic.toDataURL('image/png');
-const link=document.createElement('link');link.rel='apple-touch-icon';link.href=iu;document.head.appendChild(link);
+const l1=document.createElement('link');l1.rel='apple-touch-icon';l1.href=iu;document.head.appendChild(l1);
+const l2=document.createElement('link');l2.rel='icon';l2.type='image/png';l2.href=iu;document.head.appendChild(l2);
+const mf={name:"HemaLife - IOV",short_name:"HemaLife",start_url:location.href,display:"standalone",background_color:"#F1F5F9",theme_color:"#005495",icons:[{src:iu,sizes:"512x512",type:"image/png"}]};
+const ml=document.createElement('link');ml.rel='manifest';ml.href='data:application/json;base64,'+btoa(JSON.stringify(mf));document.head.appendChild(ml);
 </script>
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
-  body { background: #F1F5F9; font-family: 'DM Sans', sans-serif; margin: 0; padding: 0; color: #1E293B; }
-  .header { background: #fff; padding: 20px; text-align: center; border-bottom: 2px solid #005495; }
-  .logo { height: 50px; }
-  .container { padding: 20px; max-width: 500px; margin: 0 auto; }
-  .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid #E2E8F0; }
-  .btn-primary { background: #005495; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; font-size: 16px; }
-  h1 { color: #005495; font-size: 24px; margin-top: 10px; }
+:root { --iov-blue: #005495; --iov-dark: #003366; --bg: #F1F5F9; --text: #1E293B; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+/* UI Elements */
+.header { background: white; padding: 15px; text-align: center; border-bottom: 3px solid var(--iov-blue); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.header img { height: 40px; }
+.card { background: white; border-radius: 20px; padding: 20px; margin: 15px; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+.btn { border: none; border-radius: 12px; padding: 14px; font-weight: 700; width: 100%; cursor: pointer; font-size: 16px; transition: 0.2s; display: block; text-align: center; text-decoration: none; }
+.btn-primary { background: linear-gradient(135deg, var(--iov-blue), var(--iov-dark)); color: white; }
+.btn-secondary { background: #E2E8F0; color: #475569; margin-top: 10px; }
+.label { font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 5px; display: block; }
+input, select, textarea { width: 100%; padding: 12px; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 16px; margin-bottom: 15px; }
+
+/* Status Indicators */
+.status-pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; background: #DBEAFE; color: #1E40AF; }
 </style>
 </head>
 <body>
-  <div class="header">
-    <img src="https://www.iov.veneto.it/wp-content/themes/iov/img/logo-iov.png" alt="IOV Logo" class="logo">
-    <h1>HemaLife</h1>
+
+<div class="header">
+  <img src="https://www.iov.veneto.it/wp-content/themes/iov/img/logo-iov.png" alt="IOV">
+  <div style="font-weight: 700; color: var(--iov-blue); font-size: 14px;">Ematologia - Monitoraggio Paziente</div>
+</div>
+
+<div id="app">
   </div>
-  <div class="container">
-    <div class="card">
-      <h2 style="margin-top:0">Benvenuto</h2>
-      <p>Questa applicazione ti aiuta a gestire la tua terapia ematologica e a monitorare i tuoi sintomi.</p>
-      <button class="btn-primary" onclick="alert('Configurazione iniziale in corso...')">Inizia Ora</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// --- LOGICA DI STORAGE ---
+const S = {
+  get: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v))
+};
+
+function PatientApp() {
+  const [name, setName] = useState(S.get('name', 'Paziente'));
+  const [view, setView] = useState('home');
+
+  return (
+    <div className="anim">
+      <div className="card">
+        <h2 style={{margin: '0 0 10px 0', color: 'var(--iov-blue)'}}>Buongiorno, {name}</h2>
+        <div className="status-pill">Terapia in corso</div>
+      </div>
+
+      <div className="card">
+        <span className="label">Azioni Rapide</span>
+        <button className="btn btn-primary" onClick={() => alert('Funzione Diario in attivazione')}>📝 Registra Sintomi</button>
+        <button className="btn btn-secondary" onClick={() => alert('Sezione Analisi')}>📊 Vedi Esami del Sangue</button>
+      </div>
+
+      <div className="card">
+        <span className="label">Prossimo Appuntamento</span>
+        <div style={{fontWeight: 'bold', fontSize: '18px'}}>Visita Ematologica</div>
+        <div style={{color: '#64748B'}}>Sede: IOV Padova - Piano 2</div>
+      </div>
+
+      <div style={{textAlign:'center', padding: '20px', color: '#94a3b8', fontSize: '12px'}}>
+        &copy; 2026 Istituto Oncologico Veneto - IRCCS
+      </div>
     </div>
-    
-    <div style="text-align:center; color:#64748B; font-size:12px; margin-top:40px;">
-      Istituto Oncologico Veneto (IOV) - IRCCS<br>
-      Versione 1.0.0
-    </div>
-  </div>
+  );
+}
+
+// Render Initial App
+const root = ReactDOM.createRoot(document.getElementById('app'));
+root.render(<PatientApp />);
+</script>
+
 </body>
 </html>
