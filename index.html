@@ -7,8 +7,19 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#005495">
 <title>HemaLife - IOV</title>
+
 <script>
-// Icona PWA IOV
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for(let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+<script>
+// Icona PWA
 const ic=document.createElement('canvas');ic.width=512;ic.height=512;const ix=ic.getContext('2d');
 const ig=ix.createLinearGradient(0,0,512,512);ig.addColorStop(0,'#005495');ig.addColorStop(1,'#003366');
 ix.fillStyle=ig;ix.beginPath();ix.roundRect(0,0,512,512,96);ix.fill();
@@ -42,9 +53,9 @@ input:focus { border-color: var(--iov-blue); }
 <body>
 <div id="root"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <script type="text/babel">
 const S = {
@@ -52,7 +63,6 @@ const S = {
   set: (k, v) => localStorage.setItem(k, JSON.stringify(v))
 };
 
-// Grafico indistruttibile fatto a mano
 function BloodChart({ data }) {
   if (!data || data.length === 0) return <div style={{textAlign:'center', color:'#94A3B8', padding:'40px 0'}}>Nessun dato inserito</div>;
   
@@ -91,7 +101,7 @@ function App() {
       data: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}), 
       hb: parseFloat(tempHb)
     };
-    const nuoviValori = [...valori, nuovoDato].slice(-7); // Tiene solo gli ultimi 7 dati per pulizia visiva
+    const nuoviValori = [...valori, nuovoDato].slice(-7); 
     setValori(nuoviValori);
     S.set('valori', nuoviValori);
     setTempHb('');
