@@ -4,185 +4,514 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#005495">
-<title>HemaLife - IOV</title>
-
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1219">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HemaLife">
+<title>HemaLife</title>
+<link rel="apple-touch-icon" id="app-icon"><link rel="icon" id="favicon" type="image/png">
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for(let registration of registrations) {
-        registration.unregister();
-      }
-    });
-  }
-</script>
-
-<script>
-// Icona PWA
 const ic=document.createElement('canvas');ic.width=512;ic.height=512;const ix=ic.getContext('2d');
-const ig=ix.createLinearGradient(0,0,512,512);ig.addColorStop(0,'#005495');ig.addColorStop(1,'#003366');
+const ig=ix.createLinearGradient(0,0,512,512);ig.addColorStop(0,'#1e1b4b');ig.addColorStop(1,'#0f1219');
 ix.fillStyle=ig;ix.beginPath();ix.roundRect(0,0,512,512,96);ix.fill();
-ix.fillStyle='#fff';ix.beginPath();ix.moveTo(256,100);ix.bezierCurveTo(256,100,155,225,155,305);
+ix.fillStyle='#E11D48';ix.beginPath();ix.moveTo(256,100);ix.bezierCurveTo(256,100,155,225,155,305);
 ix.bezierCurveTo(155,360,200,410,256,410);ix.bezierCurveTo(312,410,357,360,357,305);
 ix.bezierCurveTo(357,225,256,100,256,100);ix.fill();
-ix.fillStyle='#005495';ix.fillRect(240,240,32,80);ix.fillRect(224,264,64,32);
+ix.fillStyle='#fff';ix.fillRect(240,240,32,80);ix.fillRect(224,264,64,32);
 const iu=ic.toDataURL('image/png');
-const l1=document.createElement('link');l1.rel='apple-touch-icon';l1.href=iu;document.head.appendChild(l1);
+document.getElementById('app-icon').href=iu;document.getElementById('favicon').href=iu;
+const mf={name:"HemaLife",short_name:"HemaLife",start_url:location.href.split('?')[0],display:"standalone",background_color:"#0f1219",theme_color:"#0f1219",orientation:"portrait",icons:[{src:iu,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+const ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));document.head.appendChild(ml);
+if('serviceWorker' in navigator){const sw=`const C='hl-v4';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.origin+self.location.pathname])));self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim()});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)))})`;navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});}
 </script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root { --iov-blue: #005495; --iov-dark: #003366; --bg: #F1F5F9; --text: #1E293B; }
-body { margin:0; font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); -webkit-font-smoothing: antialiased; }
-.header { background:white; padding:15px; text-align:center; border-bottom:3px solid var(--iov-blue); position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
-.header img { height:35px; }
-.container { padding:15px; max-width:600px; margin:0 auto; padding-bottom:100px; }
-.card { background:white; border-radius:20px; padding:20px; margin-bottom:15px; border:1px solid #E2E8F0; box-shadow:0 4px 6px rgba(0,0,0,0.02); }
-.btn { border:none; border-radius:12px; padding:14px; font-weight:700; width:100%; cursor:pointer; font-size:16px; transition:0.2s; display:block; text-align:center; margin-bottom:10px; }
-.bp { background: linear-gradient(135deg, var(--iov-blue), var(--iov-dark)); color:white; }
-.bs { background:#E2E8F0; color:#475569; }
-.lb { font-size:12px; font-weight:700; color:#64748B; text-transform:uppercase; margin-bottom:8px; display:block; }
-input { width:100%; padding:12px; border:1.5px solid #CBD5E1; border-radius:10px; font-size:16px; margin-bottom:15px; box-sizing: border-box; outline:none; }
-input:focus { border-color: var(--iov-blue); }
-.nav { position:fixed; bottom:0; left:0; right:0; background:white; display:flex; border-top:1px solid #E2E8F0; padding:10px 0 25px; justify-content:space-around; z-index:1000; }
-.nav-item { font-size:24px; color:#64748B; text-align:center; flex:1; cursor:pointer; display:flex; flex-direction:column; align-items:center; }
-.nav-item span { font-size:10px; font-weight:700; margin-top:4px; }
-.nav-item.active { color:var(--iov-blue); }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;overflow:hidden;background:#0f1219;color:#E2E8F0;font-family:'DM Sans',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#root{height:100%}
+::-webkit-scrollbar{width:0;display:none}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:6px;border-radius:99px;outline:none;cursor:pointer}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:white;border:3px solid #94A3B8;box-shadow:0 2px 8px rgba(0,0,0,0.4);cursor:pointer}
+input[type="text"],input[type="time"],input[type="date"],input[type="datetime-local"],textarea,select{font-family:'DM Sans',sans-serif;font-size:15px;color:#F1F5F9;background:#0f1219;border:1.5px solid #2a3150;border-radius:12px;padding:12px 14px;outline:none;width:100%;transition:border-color 0.2s;-webkit-appearance:none}
+input:focus,textarea:focus,select:focus{border-color:#818CF8}
+textarea{resize:vertical;min-height:50px}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394A3B8' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes checkPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.anim{animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1)}.fade{animation:fadeIn 0.35s ease}.pop{animation:checkPop 0.35s cubic-bezier(0.34,1.56,0.64,1)}
+.card{transition:transform 0.15s ease}.card:active{transform:scale(0.97)}
+.sb{padding-bottom:max(28px,env(safe-area-inset-bottom))}.st{padding-top:max(20px,env(safe-area-inset-top))}
+.btn{border:none;border-radius:14px;padding:14px 20px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity 0.2s;display:inline-flex;align-items:center;justify-content:center;gap:6px}.btn:active{opacity:0.8}
+.bp{background:linear-gradient(135deg,#6366F1,#818CF8);color:#fff;box-shadow:0 4px 16px #6366F133}
+.bd{background:#7F1D1D;color:#F87171;border:1px solid #991B1B}
+.bg{background:#1e2536;color:#94A3B8}
+.ba{background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;box-shadow:0 4px 16px #F59E0B33}
+.bgr{background:linear-gradient(135deg,#059669,#10B981);color:#fff}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease}
+.ms{background:#151a27;border-radius:24px 24px 0 0;width:100%;max-width:430px;max-height:85vh;overflow-y:auto;padding:24px 20px 40px;animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1)}
+.ms .hd{width:36px;height:4px;background:#2a3150;border-radius:99px;margin:0 auto 20px}
+.lb{font-size:13px;font-weight:600;color:#94A3B8;margin-bottom:6px;display:block}
+.sec{background:#1a1f2e;border-radius:16px;padding:18px;margin-bottom:12px;border:1px solid #2a3150}
 </style>
 </head>
 <body>
 <div id="root"></div>
-
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
 <script type="text/babel">
-const S = {
-  get: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set: (k, v) => localStorage.setItem(k, JSON.stringify(v))
+const{useState,useEffect,useRef}=React;
+const S={get(k,f){try{const v=localStorage.getItem('hl_'+k);return v?JSON.parse(v):f}catch{return f}},set(k,v){try{localStorage.setItem('hl_'+k,JSON.stringify(v))}catch{}},today(){return new Date().toISOString().slice(0,10)}};
+/* ── Appointment Types ── */
+const APT_TYPES={
+visita:{label:"Visita Ematologica",emoji:"🩺",color:"#6366F1"},
+sangue:{label:"Esami del Sangue",emoji:"🩸",color:"#EF4444"},
+biopsia:{label:"Biopsia Midollare",emoji:"🦴",color:"#F97316"},
+eco:{label:"Ecografia",emoji:"📡",color:"#0EA5E9"},
+tac:{label:"TAC / PET",emoji:"🔬",color:"#8B5CF6"},
+rmn:{label:"Risonanza Magnetica",emoji:"🧲",color:"#14B8A6"},
+trasfusione:{label:"Trasfusione",emoji:"💉",color:"#E11D48"},
+chemio:{label:"Ciclo Chemioterapia",emoji:"💊",color:"#D946EF"},
+altro:{label:"Altro",emoji:"📋",color:"#64748B"},
 };
-
-function BloodChart({ data }) {
-  if (!data || data.length === 0) return <div style={{textAlign:'center', color:'#94A3B8', padding:'40px 0'}}>Nessun dato inserito</div>;
-  
-  const w = 300, h = 140, p = 20;
-  const vals = data.map(d => d.hb);
-  const min = Math.min(...vals, 10) * 0.9;
-  const max = Math.max(...vals, 16) * 1.1;
-  
-  const sx = i => p + (i / Math.max(1, data.length - 1)) * (w - p * 2);
-  const sy = v => max === min ? h/2 : h - p - ((v - min) / (max - min)) * (h - p * 2);
-  const path = data.map((d, i) => `${i === 0 ? 'M' : 'L'}${sx(i)},${sy(d.hb)}`).join(' ');
-
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} style={{width:'100%', height:'auto', marginTop:10, overflow:'visible'}}>
-      <path d={path} fill="none" stroke="#005495" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-      {data.map((d, i) => (
-        <g key={i}>
-          <circle cx={sx(i)} cy={sy(d.hb)} r="5" fill="#005495" stroke="#fff" strokeWidth="2" />
-          <text x={sx(i)} y={h} fontSize="10" fill="#64748B" textAnchor="middle">{d.data}</text>
-          <text x={sx(i)} y={sy(d.hb) - 10} fontSize="12" fill="#1E293B" fontWeight="bold" textAnchor="middle">{d.hb}</text>
-        </g>
-      ))}
-    </svg>
-  );
+/* ── Icons ── */
+const I={
+Home:()=><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+Heart:()=><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>,
+Pill:()=><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8m-4-4h8"/></svg>,
+Chart:()=><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+Cal:()=><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+Check:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>,
+Clock:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+Plus:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+ChevR:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>,
+Drop:()=><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>,
+Sun:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>,
+Moon:()=><svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>,
+Trash:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>,
+Edit:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+Gear:()=><svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
+X:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+Copy:()=><svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>,
+Alert:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+Download:()=><svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+};
+const SYMPTOMS=[{id:"fatigue",label:"Stanchezza",emoji:"😴",color:"#F59E0B"},{id:"fever",label:"Febbre",emoji:"🌡️",color:"#EF4444"},{id:"bruising",label:"Lividi",emoji:"🟣",color:"#8B5CF6"},{id:"nausea",label:"Nausea",emoji:"🤢",color:"#10B981"},{id:"pain",label:"Dolore osseo",emoji:"🦴",color:"#F97316"},{id:"infection",label:"Segni infezione",emoji:"🔴",color:"#DC2626"},{id:"bleeding",label:"Sanguinamento",emoji:"🩸",color:"#E11D48"},{id:"appetite",label:"Inappetenza",emoji:"🍽️",color:"#6366F1"},{id:"breath",label:"Dispnea",emoji:"💨",color:"#0EA5E9"},{id:"sweats",label:"Sudoraz. notturna",emoji:"🌙",color:"#7C3AED"}];
+const MCOLORS=["#3B82F6","#8B5CF6","#10B981","#F59E0B","#EF4444","#EC4899","#0EA5E9","#F97316"];
+const DEMO_BLOOD={wbc:[{date:"01/01",value:3.2},{date:"08/01",value:3.8},{date:"15/01",value:2.1},{date:"22/01",value:1.4},{date:"29/01",value:2.9},{date:"05/02",value:4.1},{date:"12/02",value:5.2},{date:"19/02",value:5.8}],hb:[{date:"01/01",value:11.2},{date:"08/01",value:10.8},{date:"15/01",value:9.4},{date:"22/01",value:8.2},{date:"29/01",value:8.9},{date:"05/02",value:10.1},{date:"12/02",value:11.0},{date:"19/02",value:11.8}],plt:[{date:"01/01",value:180},{date:"08/01",value:150},{date:"15/01",value:90},{date:"22/01",value:45},{date:"29/01",value:78},{date:"05/02",value:120},{date:"12/02",value:155},{date:"19/02",value:175}]};
+function BloodChart({data,color,normalMin,normalMax,unit,label}){
+const vals=data.map(d=>d.value),lo=Math.min(...vals,normalMin)*0.82,hi=Math.max(...vals,normalMax)*1.18;
+const w=300,h=110,p=32,sx=i=>p+(i/(data.length-1))*(w-p*2),sy=v=>h-p-((v-lo)/(hi-lo))*(h-p*2);
+const path=data.map((d,i)=>`${i===0?'M':'L'}${sx(i)},${sy(d.value)}`).join(' ');
+const ny1=sy(normalMax),ny2=sy(normalMin),last=vals[vals.length-1],ok=last>=normalMin&&last<=normalMax;
+return(<div style={{background:'#1a1f2e',borderRadius:18,padding:'18px 14px',marginBottom:14}}>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,padding:'0 4px'}}><span style={{color:'#94A3B8',fontSize:13}}>{label}</span><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{color:ok?'#34D399':'#F87171',fontSize:24,fontWeight:700,fontFamily:"'Space Mono',monospace"}}>{last}</span><span style={{color:'#64748B',fontSize:11}}>{unit}</span><span style={{background:ok?'#064E3B':'#7F1D1D',color:ok?'#34D399':'#F87171',fontSize:9,padding:'3px 8px',borderRadius:99,fontWeight:700}}>{ok?'OK':'!'}</span></div></div>
+<svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{width:'100%',height:'auto'}}><rect x={p} y={ny1} width={w-p*2} height={ny2-ny1} fill={color} opacity={0.07} rx={4}/><line x1={p} y1={ny1} x2={w-p} y2={ny1} stroke={color} strokeWidth={0.5} strokeDasharray="4,4" opacity={0.25}/><line x1={p} y1={ny2} x2={w-p} y2={ny2} stroke={color} strokeWidth={0.5} strokeDasharray="4,4" opacity={0.25}/><defs><linearGradient id={`g-${label}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity={0.25}/><stop offset="100%" stopColor={color} stopOpacity={0}/></linearGradient></defs><path d={`${path} L${sx(data.length-1)},${h-p} L${sx(0)},${h-p} Z`} fill={`url(#g-${label})`}/><path d={path} fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"/>{data.map((d,i)=><circle key={i} cx={sx(i)} cy={sy(d.value)} r={i===data.length-1?5:2.5} fill={i===data.length-1?color:'#1a1f2e'} stroke={color} strokeWidth={i===data.length-1?2:1.5}/>)}{data.map((d,i)=>i%2===0||i===data.length-1?<text key={'t'+i} x={sx(i)} y={h-8} textAnchor="middle" fill="#64748B" fontSize={9} fontFamily="DM Sans">{d.date}</text>:null)}</svg>
+</div>);
 }
-
-function App() {
-  const [view, setView] = React.useState('home');
-  const [paziente, setPaziente] = React.useState(S.get('paziente', 'Paziente'));
-  const [valori, setValori] = React.useState(S.get('valori', []));
-  const [tempHb, setTempHb] = React.useState('');
-
-  const salvaDato = () => {
-    if(!tempHb) return;
-    const nuovoDato = {
-      data: new Date().toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit'}), 
-      hb: parseFloat(tempHb)
-    };
-    const nuoviValori = [...valori, nuovoDato].slice(-7); 
-    setValori(nuoviValori);
-    S.set('valori', nuoviValori);
-    setTempHb('');
-    setView('home');
-  };
-
-  return (
-    <div style={{minHeight:'100vh'}}>
-      <div className="header">
-        <img src="https://www.iov.veneto.it/wp-content/themes/iov/img/logo-iov.png" alt="IOV Logo" />
-        <div style={{fontSize:'11px', fontWeight:700, color:'var(--iov-blue)', textTransform:'uppercase'}}>HemaLife - Area Paziente</div>
-      </div>
-
-      <div className="container">
-        {view === 'home' && (
-          <div>
-            <div className="card">
-              <h2 style={{margin:0, color:'var(--iov-blue)'}}>Buongiorno, {paziente}</h2>
-              <p style={{fontSize:'14px', color:'#64748B', margin:'5px 0 0 0'}}>Oggi è il {new Date().toLocaleDateString('it-IT')}</p>
-            </div>
-
-            <div className="card">
-              <span className="lb">Azioni Veloci</span>
-              <button className="btn bp" onClick={() => setView('esami')}>🩸 Inserisci Emoglobina</button>
-            </div>
-
-            <div className="card">
-              <span className="lb">Andamento Emoglobina (Hb)</span>
-              <BloodChart data={valori} />
-            </div>
-          </div>
-        )}
-
-        {view === 'esami' && (
-          <div className="card">
-            <h3 style={{margin:'0 0 15px 0'}}>Nuova Rilevazione</h3>
-            <span className="lb">Valore Emoglobina (g/dL)</span>
-            <input 
-              type="number" 
-              step="0.1" 
-              placeholder="es. 12.5" 
-              value={tempHb} 
-              onChange={(e) => setTempHb(e.target.value)} 
-            />
-            <button className="btn bp" onClick={salvaDato}>Salva nel Diario</button>
-            <button className="btn bs" onClick={() => setView('home')}>Annulla</button>
-          </div>
-        )}
-
-        {view === 'settings' && (
-          <div className="card">
-            <h3 style={{margin:'0 0 15px 0'}}>Impostazioni Profilo</h3>
-            <span className="lb">Nome e Cognome Paziente</span>
-            <input 
-              type="text" 
-              value={paziente} 
-              onChange={(e) => {setPaziente(e.target.value); S.set('paziente', e.target.value)}} 
-            />
-            <button className="btn bp" onClick={() => setView('home')}>Torna alla Home</button>
-            <button className="btn bs" style={{color:'#E11D48'}} onClick={() => {if(window.confirm('Cancellare tutti i dati salvati?')){localStorage.clear(); window.location.reload()}}}>Resetta App</button>
-          </div>
-        )}
-      </div>
-
-      <div className="nav">
-        <div className={`nav-item ${view==='home'?'active':''}`} onClick={()=>setView('home')}>
-          🏠<span>HOME</span>
-        </div>
-        <div className={`nav-item ${view==='esami'?'active':''}`} onClick={()=>setView('esami')}>
-          🩸<span>ESAMI</span>
-        </div>
-        <div className={`nav-item ${view==='settings'?'active':''}`} onClick={()=>setView('settings')}>
-          ⚙️<span>PROFILO</span>
-        </div>
-      </div>
-    </div>
-  );
+function Slider({value,onChange,color}){
+return(<div style={{display:'flex',alignItems:'center',gap:10,width:'100%'}}><input type="range" min={0} max={10} value={value} onChange={e=>onChange(Number(e.target.value))} style={{flex:1,background:`linear-gradient(to right,${color}33,${color})`}}/><span style={{minWidth:34,height:34,display:'flex',alignItems:'center',justifyContent:'center',background:value>7?'#7F1D1D':value>4?'#78350F':'#064E3B',color:value>7?'#F87171':value>4?'#FBBF24':'#34D399',borderRadius:11,fontSize:14,fontWeight:700,fontFamily:"'Space Mono',monospace"}}>{value}</span></div>);
 }
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+/* ══════════════════════════════════════════
+DOCTOR CONFIG PANEL
+Access via ?doctor=1
+══════════════════════════════════════════ */
+function DoctorPanel(){
+const[name,setName]=useState('');
+const[meds,setMeds]=useState([]);
+const[apts,setApts]=useState([]);
+const[showMF,setShowMF]=useState(false);
+const[showAF,setShowAF]=useState(false);
+const[editMed,setEditMed]=useState(null);
+const[editApt,setEditApt]=useState(null);
+const[link,setLink]=useState('');
+const[copied,setCopied]=useState(false);
+// Med form state
+const[mName,setMN]=useState('');const[mDose,setMD]=useState('');const[mNotes,setMNt]=useState('');const[mTimes,setMT]=useState(['08:00']);
+// Apt form state
+const[aType,setAT]=useState('visita');const[aDate,setAD]=useState('');const[aTime,setATm]=useState('');const[aLoc,setAL]=useState('');const[aDoc,setADc]=useState('');const[aNotes,setAN]=useState('');const[aPrep,setAP]=useState('');
+const openMedForm=(m)=>{setEditMed(m);setMN(m?.name||'');setMD(m?.dose||'');setMNt(m?.notes||'');setMT(m?.times||['08:00']);setShowMF(true)};
+const saveMed=()=>{if(!mName.trim())return;const med={id:editMed?.id||Date.now(),name:mName.trim(),dose:mDose.trim(),notes:mNotes.trim(),times:mTimes.filter(Boolean),color:editMed?.color||MCOLORS[meds.length%MCOLORS.length]};if(editMed)setMeds(p=>p.map(m=>m.id===editMed.id?med:m));else setMeds(p=>[...p,med]);setShowMF(false);setEditMed(null)};
+const openAptForm=(a)=>{setEditApt(a);setAT(a?.type||'visita');setAD(a?.date||'');setATm(a?.time||'');setAL(a?.location||'');setADc(a?.doctor||'');setAN(a?.notes||'');setAP(a?.prep||'');setShowAF(true)};
+const saveApt=()=>{if(!aDate)return;const apt={id:editApt?.id||Date.now(),type:aType,date:aDate,time:aTime,location:aLoc.trim(),doctor:aDoc.trim(),notes:aNotes.trim(),prep:aPrep.trim()};if(editApt)setApts(p=>p.map(a=>a.id===editApt.id?apt:a));else setApts(p=>[...p,apt]);setShowAF(false);setEditApt(null)};
+const genLink=()=>{
+const cfg={n:name,m:meds.map(m=>({n:m.name,d:m.dose,t:m.times,nt:m.notes})),a:apts.map(a=>({tp:a.type,dt:a.date,tm:a.time,loc:a.location,doc:a.doctor,nt:a.notes,pr:a.prep}))};
+const encoded=btoa(encodeURIComponent(JSON.stringify(cfg)));
+const base=window.location.origin+window.location.pathname;
+const url=base+'?cfg='+encoded;
+setLink(url);
+};
+const copyLink=()=>{navigator.clipboard.writeText(link).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000)}).catch(()=>{})};
+return(
+<div style={{maxWidth:500,margin:'0 auto',height:'100%',overflow:'auto',padding:'24px 20px 40px',background:'#0f1219'}}>
+{copied&&<div style={{position:'fixed',top:20,left:'50%',transform:'translateX(-50%)',background:'#059669',color:'#fff',padding:'10px 24px',borderRadius:12,fontWeight:600,zIndex:999,animation:'fadeIn 0.2s ease'}}>Link copiato!</div>}
+<div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+<div style={{color:'#E11D48'}}><I.Drop/></div>
+<span style={{fontFamily:"'Space Mono',monospace",fontWeight:700,fontSize:20,color:'#F1F5F9'}}>HemaLife</span>
+<span style={{background:'#818CF820',color:'#818CF8',fontSize:11,fontWeight:700,padding:'4px 10px',borderRadius:8}}>PANNELLO MEDICO</span>
+</div>
+<p style={{fontSize:14,color:'#64748B',marginBottom:28,lineHeight:1.6}}>Configura terapia e appuntamenti per un paziente, poi genera il link personalizzato da inviargli.</p>
+{/* Patient Name */}
+<div className="sec">
+<label className="lb">Nome paziente</label>
+<input type="text" value={name} onChange={e=>setName(e.target.value)} placeholder="es. Mario Rossi"/>
+</div>
+{/* Medications */}
+<div className="sec">
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+<span style={{fontSize:16,fontWeight:700,color:'#F1F5F9'}}>💊 Terapia</span>
+<button onClick={()=>openMedForm(null)} className="btn bp" style={{padding:'8px 14px',fontSize:13}}><I.Plus/> Farmaco</button>
+</div>
+{meds.length===0&&<p style={{fontSize:13,color:'#475569'}}>Nessun farmaco ancora</p>}
+{meds.map(m=>(
+<div key={m.id} style={{display:'flex',alignItems:'center',gap:12,padding:'10px 0',borderTop:'1px solid #2a3150'}}>
+<div style={{width:36,height:36,borderRadius:10,background:`${m.color}20`,display:'flex',alignItems:'center',justifyContent:'center',color:m.color,flexShrink:0}}><I.Pill/></div>
+<div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:14,color:'#F1F5F9'}}>{m.name}</div><div style={{fontSize:12,color:'#94A3B8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.dose} · {m.times.join(', ')}{m.notes&&` · ${m.notes}`}</div></div>
+<button onClick={()=>openMedForm(m)} style={{background:'none',border:'none',color:'#64748B',cursor:'pointer'}}><I.Edit/></button>
+<button onClick={()=>setMeds(p=>p.filter(x=>x.id!==m.id))} style={{background:'none',border:'none',color:'#EF4444',cursor:'pointer'}}><I.Trash/></button>
+</div>
+))}
+</div>
+{/* Appointments */}
+<div className="sec">
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+<span style={{fontSize:16,fontWeight:700,color:'#F1F5F9'}}>📅 Appuntamenti</span>
+<button onClick={()=>openAptForm(null)} className="btn bp" style={{padding:'8px 14px',fontSize:13}}><I.Plus/> Appuntamento</button>
+</div>
+{apts.length===0&&<p style={{fontSize:13,color:'#475569'}}>Nessun appuntamento ancora</p>}
+{apts.sort((a,b)=>a.date.localeCompare(b.date)).map(a=>{const t=APT_TYPES[a.type]||APT_TYPES.altro;return(
+<div key={a.id} style={{display:'flex',alignItems:'center',gap:12,padding:'10px 0',borderTop:'1px solid #2a3150'}}>
+<div style={{width:36,height:36,borderRadius:10,background:`${t.color}20`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>{t.emoji}</div>
+<div style={{flex:1,minWidth:0}}>
+<div style={{fontWeight:600,fontSize:14,color:'#F1F5F9'}}>{t.label}</div>
+<div style={{fontSize:12,color:'#94A3B8'}}>
+{new Date(a.date+'T12:00').toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'})}
+{a.time&&` · ${a.time}`}{a.location&&` · ${a.location}`}
+</div>
+{a.doctor&&<div style={{fontSize:11,color:'#64748B'}}>{a.doctor}</div>}
+</div>
+<button onClick={()=>openAptForm(a)} style={{background:'none',border:'none',color:'#64748B',cursor:'pointer'}}><I.Edit/></button>
+<button onClick={()=>setApts(p=>p.filter(x=>x.id!==a.id))} style={{background:'none',border:'none',color:'#EF4444',cursor:'pointer'}}><I.Trash/></button>
+</div>
+)})}
+</div>
+{/* Generate Link */}
+<button onClick={genLink} className="btn bgr" style={{width:'100%',padding:16,fontSize:16,marginBottom:12}}>🔗 Genera Link Paziente</button>
+{link&&(
+<div className="sec fade" style={{background:'#064E3B',border:'1px solid #065F46'}}>
+<p style={{fontSize:13,fontWeight:600,color:'#6EE7B7',marginBottom:10}}>Link pronto! Invialo al paziente via WhatsApp, SMS o email:</p>
+<div style={{background:'#0f1219',borderRadius:10,padding:12,fontSize:12,color:'#94A3B8',wordBreak:'break-all',marginBottom:12,lineHeight:1.5}}>{link}</div>
+<button onClick={copyLink} className="btn bp" style={{width:'100%',padding:12}}><I.Copy/> Copia Link</button>
+</div>
+)}
+{/* Med Form Modal */}
+{showMF&&(<div className="mo" onClick={e=>{if(e.target===e.currentTarget){setShowMF(false);setEditMed(null)}}}><div className="ms"><div className="hd"/>
+<h2 style={{fontSize:20,fontWeight:700,color:'#F1F5F9',marginBottom:20}}>{editMed?'Modifica':'Nuovo'} Farmaco</h2>
+<div style={{display:'flex',flexDirection:'column',gap:14}}>
+<div><label className="lb">Nome *</label><input type="text" value={mName} onChange={e=>setMN(e.target.value)} placeholder="es. Ruxolitinib"/></div>
+<div><label className="lb">Dosaggio</label><input type="text" value={mDose} onChange={e=>setMD(e.target.value)} placeholder="es. 20mg"/></div>
+<div><label className="lb">Orari</label>
+{mTimes.map((t,i)=><div key={i} style={{display:'flex',gap:8,marginBottom:8}}><input type="time" value={t} onChange={e=>{const n=[...mTimes];n[i]=e.target.value;setMT(n)}} style={{flex:1}}/>{mTimes.length>1&&<button onClick={()=>setMT(mTimes.filter((_,j)=>j!==i))} style={{background:'#7F1D1D',border:'none',borderRadius:10,width:40,height:44,color:'#F87171',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><I.Trash/></button>}</div>)}
+<button onClick={()=>setMT([...mTimes,'12:00'])} style={{background:'none',border:'1.5px dashed #2a3150',borderRadius:12,padding:10,width:'100%',color:'#818CF8',fontSize:14,fontWeight:600,cursor:'pointer'}}><I.Plus/> Orario</button>
+</div>
+<div><label className="lb">Note</label><input type="text" value={mNotes} onChange={e=>setMNt(e.target.value)} placeholder="es. Con pasto ricco di grassi"/></div>
+</div>
+<div style={{display:'flex',gap:10,marginTop:20}}><button onClick={()=>{setShowMF(false);setEditMed(null)}} className="btn bg" style={{flex:1}}>Annulla</button><button onClick={saveMed} className="btn bp" style={{flex:2}}>Salva</button></div>
+</div></div>)}
+{/* Apt Form Modal */}
+{showAF&&(<div className="mo" onClick={e=>{if(e.target===e.currentTarget){setShowAF(false);setEditApt(null)}}}><div className="ms"><div className="hd"/>
+<h2 style={{fontSize:20,fontWeight:700,color:'#F1F5F9',marginBottom:20}}>{editApt?'Modifica':'Nuovo'} Appuntamento</h2>
+<div style={{display:'flex',flexDirection:'column',gap:14}}>
+<div><label className="lb">Tipo *</label>
+<select value={aType} onChange={e=>setAT(e.target.value)}>
+{Object.entries(APT_TYPES).map(([k,v])=><option key={k} value={k}>{v.emoji} {v.label}</option>)}
+</select>
+</div>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+<div><label className="lb">Data *</label><input type="date" value={aDate} onChange={e=>setAD(e.target.value)}/></div>
+<div><label className="lb">Ora</label><input type="time" value={aTime} onChange={e=>setATm(e.target.value)}/></div>
+</div>
+<div><label className="lb">Luogo</label><input type="text" value={aLoc} onChange={e=>setAL(e.target.value)} placeholder="es. Ambulatorio 3, IOV Padova"/></div>
+<div><label className="lb">Medico</label><input type="text" value={aDoc} onChange={e=>setADc(e.target.value)} placeholder="es. Dott.ssa Rossi"/></div>
+<div><label className="lb">Preparazione (istruzioni per il paziente)</label><textarea value={aPrep} onChange={e=>setAP(e.target.value)} placeholder="es. Digiuno da 12 ore, portare esami precedenti"/></div>
+<div><label className="lb">Note aggiuntive</label><input type="text" value={aNotes} onChange={e=>setAN(e.target.value)} placeholder="es. Portare lista farmaci aggiornata"/></div>
+</div>
+<div style={{display:'flex',gap:10,marginTop:20}}><button onClick={()=>{setShowAF(false);setEditApt(null)}} className="btn bg" style={{flex:1}}>Annulla</button><button onClick={saveApt} className="btn bp" style={{flex:2}}>Salva</button></div>
+</div></div>)}
+</div>
+);
+}
+/* ══════════════════════════════════════════
+PATIENT APP
+══════════════════════════════════════════ */
+function PatientApp(){
+// Load from URL config or localStorage
+const urlCfg=useRef(null);
+const[loaded,setLoaded]=useState(false);
+useEffect(()=>{
+try{
+const p=new URLSearchParams(window.location.search);
+const cfg=p.get('cfg');
+if(cfg){
+const d=JSON.parse(decodeURIComponent(atob(cfg)));
+urlCfg.current=d;
+if(d.n)S.set('name',d.n);
+if(d.m){const ms=d.m.map((m,i)=>({id:Date.now()+i,name:m.n,dose:m.d||'',times:m.t||['08:00'],notes:m.nt||'',color:MCOLORS[i%MCOLORS.length]}));S.set('meds',ms)}
+if(d.a){const as=d.a.map((a,i)=>({id:Date.now()+100+i,type:a.tp||'visita',date:a.dt,time:a.tm||'',location:a.loc||'',doctor:a.doc||'',notes:a.nt||'',prep:a.pr||''}));S.set('apts',as)}
+S.set('setup',true);
+// Clean URL
+window.history.replaceState({},document.title,window.location.pathname);
+}
+}catch(e){console.log('cfg parse error',e)}
+setLoaded(true);
+},[]);
+const[patientName,setPN]=useState(()=>S.get('name',''));
+const[meds,setMeds]=useState(()=>S.get('meds',[]));
+const[apts,setApts]=useState(()=>S.get('apts',[]));
+const[tab,setTab]=useState("home");
+const[taken,setTaken]=useState(()=>S.get('tk_'+S.today(),{}));
+const[symIn,setSymIn]=useState({});
+const[showSym,setShowSym]=useState(false);
+const[symLog,setSL]=useState(()=>S.get('slog',[]));
+const[bt,setBT]=useState("wbc");
+const[anim,setAnim]=useState(0);
+const[medForm,setMedForm]=useState(null);
+const[aptForm,setAptForm]=useState(null);
+const mainRef=useRef(null);
+// Reload after URL cfg
+useEffect(()=>{if(loaded){setPN(S.get('name',''));setMeds(S.get('meds',[]));setApts(S.get('apts',[]))}},[loaded]);
+const chTab=(t)=>{setTab(t);setAnim(a=>a+1);if(mainRef.current)mainRef.current.scrollTop=0};
+const toggleTk=(mid,ti)=>{const k=`${mid}-${ti}`;setTaken(p=>{const n={...p,[k]:!p[k]};S.set('tk_'+S.today(),n);return n})};
+const totalD=meds.reduce((s,m)=>s+m.times.length,0);
+const takenD=Object.values(taken).filter(Boolean).length;
+const todaySaved=symLog.some(e=>e.date===S.today());
+const saveSym=()=>{const a=Object.entries(symIn).filter(([,v])=>v>0);if(!a.length)return;const e={date:S.today(),symptoms:Object.fromEntries(a)};const n=[e,...symLog.filter(x=>x.date!==S.today())];setSL(n);S.set('slog',n);setShowSym(false);setSymIn({})};
+const dateStr=new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+const fmtDate=(iso)=>new Date(iso+'T12:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+const fmtDateFull=(iso)=>new Date(iso+'T12:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+const hasUrgent=symLog.find(e=>e.date===S.today())&&Object.values(symLog.find(e=>e.date===S.today())?.symptoms||{}).some(v=>v>=8);
+// Upcoming appointments
+const today=S.today();
+const upcoming=apts.filter(a=>a.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
+const past=apts.filter(a=>a.date<today).sort((a,b)=>b.date.localeCompare(a.date));
+const nextApt=upcoming[0];
+// Days until
+const daysUntil=(d)=>{const diff=Math.ceil((new Date(d+'T12:00')-new Date(today+'T12:00'))/(86400000));return diff===0?'Oggi':diff===1?'Domani':`Tra ${diff} giorni`};
+// Apt form state
+const[afType,setAFT]=useState('visita');const[afDate,setAFD]=useState('');const[afTime,setAFTm]=useState('');const[afLoc,setAFL]=useState('');const[afDoc,setAFDc]=useState('');const[afNotes,setAFN]=useState('');const[afPrep,setAFP]=useState('');
+const openAF=(a)=>{setAptForm(a||{});setAFT(a?.type||'visita');setAFD(a?.date||'');setAFTm(a?.time||'');setAFL(a?.location||'');setAFDc(a?.doctor||'');setAFN(a?.notes||'');setAFP(a?.prep||'')};
+const saveAF=()=>{if(!afDate)return;const apt={id:aptForm?.id||Date.now(),type:afType,date:afDate,time:afTime,location:afLoc.trim(),doctor:afDoc.trim(),notes:afNotes.trim(),prep:afPrep.trim()};let n;if(aptForm?.id)n=apts.map(a=>a.id===aptForm.id?apt:a);else n=[...apts,apt];setApts(n);S.set('apts',n);setAptForm(null)};
+// Med form
+const[mfN,setMfN]=useState('');const[mfD,setMfD]=useState('');const[mfNt,setMfNt]=useState('');const[mfT,setMfT]=useState(['08:00']);
+const openMF=(m)=>{setMedForm(m||{});setMfN(m?.name||'');setMfD(m?.dose||'');setMfNt(m?.notes||'');setMfT(m?.times||['08:00'])};
+const saveMF=()=>{if(!mfN.trim())return;const med={id:medForm?.id||Date.now(),name:mfN.trim(),dose:mfD.trim(),notes:mfNt.trim(),times:mfT.filter(Boolean),color:medForm?.color||MCOLORS[meds.length%MCOLORS.length]};let n;if(medForm?.id)n=meds.map(m=>m.id===medForm.id?med:m);else n=[...meds,med];setMeds(n);S.set('meds',n);setMedForm(null)};
+if(!loaded)return null;
+return(
+<div style={{maxWidth:430,margin:'0 auto',height:'100%',display:'flex',flexDirection:'column',position:'relative',overflow:'hidden'}}>
+<div style={{position:'absolute',top:-80,right:-80,width:300,height:300,background:'radial-gradient(circle,rgba(99,102,241,0.06),transparent 70%)',pointerEvents:'none',zIndex:0}}/>
+<header className="st" style={{padding:'0 20px 14px',background:'linear-gradient(180deg,#151a27,#0f1219)',borderBottom:'1px solid #1e2536',zIndex:50,flexShrink:0}}>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+<div><div style={{display:'flex',alignItems:'center',gap:8,marginBottom:2}}><div style={{color:'#E11D48'}}><I.Drop/></div><span style={{fontFamily:"'Space Mono',monospace",fontWeight:700,fontSize:18,letterSpacing:'-0.5px',color:'#F1F5F9'}}>HemaLife</span></div>
+<p style={{fontSize:13,color:'#64748B',textTransform:'capitalize'}}>{patientName?`Ciao ${patientName} · `:''}{dateStr}</p></div>
+<button onClick={()=>chTab(tab==='settings'?'home':'settings')} style={{width:40,height:40,borderRadius:14,background:tab==='settings'?'#2a3150':'#1e2536',display:'flex',alignItems:'center',justifyContent:'center',color:tab==='settings'?'#818CF8':'#94A3B8',border:'none',cursor:'pointer'}}><I.Gear/></button>
+</div>
+</header>
+<main ref={mainRef} style={{flex:1,overflowY:'auto',overflowX:'hidden',padding:'16px 16px 0',WebkitOverflowScrolling:'touch'}}>
+<div key={anim} className="anim" style={{paddingBottom:100}}>
+{/* ══ HOME ══ */}
+{tab==="home"&&(<div>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
+<div className="card" onClick={()=>chTab("meds")} style={{background:'linear-gradient(135deg,#1e2536,#1a2040)',borderRadius:18,padding:16,cursor:'pointer',border:'1px solid #2a3150'}}>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}><div style={{background:'#3B82F620',borderRadius:12,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',color:'#60A5FA'}}><I.Pill/></div><I.ChevR/></div>
+<div style={{fontFamily:"'Space Mono',monospace",fontSize:26,fontWeight:700,color:'#F1F5F9'}}>{totalD?`${takenD}/${totalD}`:'—'}</div>
+<div style={{fontSize:12,color:'#94A3B8',marginTop:2}}>Dosi assunte</div>
+{totalD>0&&<div style={{marginTop:8,height:4,background:'#0f1219',borderRadius:99,overflow:'hidden'}}><div style={{height:'100%',width:`${(takenD/totalD)*100}%`,background:takenD===totalD?'#34D399':'#3B82F6',borderRadius:99,transition:'width 0.4s'}}/></div>}
+</div>
+<div className="card" onClick={()=>chTab("symptoms")} style={{background:'linear-gradient(135deg,#1e2536,#261a2a)',borderRadius:18,padding:16,cursor:'pointer',border:'1px solid #2a3150'}}>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}><div style={{background:'#F59E0B20',borderRadius:12,width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',color:'#FBBF24'}}><I.Heart/></div><I.ChevR/></div>
+<div style={{fontSize:14,fontWeight:600,color:'#F1F5F9'}}>{todaySaved?"Registrato ✓":"Da registrare"}</div>
+<div style={{fontSize:12,color:'#94A3B8',marginTop:2}}>Sintomi oggi</div>
+{!todaySaved&&<div style={{marginTop:8,background:'#F59E0B20',color:'#FBBF24',fontSize:11,fontWeight:600,padding:'3px 8px',borderRadius:8,textAlign:'center'}}>REGISTRA</div>}
+</div>
+</div>
+{hasUrgent&&<div style={{background:'linear-gradient(135deg,#7F1D1D,#4C0519)',borderRadius:16,padding:14,marginBottom:14,border:'1px solid #991B1B44',display:'flex',gap:10}}><div style={{color:'#FCA5A5',flexShrink:0,marginTop:2}}><I.Alert/></div><div><div style={{fontWeight:600,fontSize:14,color:'#FEE2E2',marginBottom:2}}>Sintomi Severi</div><div style={{fontSize:13,color:'#FCA5A5'}}>Contatta il tuo ematologo se persistono.</div></div></div>}
+{/* Next Appointment */}
+{nextApt&&(()=>{const t=APT_TYPES[nextApt.type]||APT_TYPES.altro;const du=daysUntil(nextApt.date);const isToday=nextApt.date===today;return(
+<div onClick={()=>chTab("calendar")} style={{cursor:'pointer',marginBottom:16}}>
+<h3 style={{fontSize:13,fontWeight:600,color:'#64748B',letterSpacing:'0.5px',textTransform:'uppercase',marginBottom:10}}>Prossimo Appuntamento</h3>
+<div style={{background:isToday?'linear-gradient(135deg,#312e81,#1e1b4b)':'#1a1f2e',borderRadius:16,padding:16,border:`1px solid ${isToday?'#4338ca44':'#2a3150'}`,display:'flex',gap:14,alignItems:'center'}}>
+<div style={{background:`${t.color}20`,borderRadius:14,width:52,height:52,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+<span style={{fontSize:20}}>{t.emoji}</span>
+</div>
+<div style={{flex:1}}>
+<div style={{fontWeight:600,fontSize:15,color:'#F1F5F9'}}>{t.label}</div>
+<div style={{fontSize:13,color:'#94A3B8',marginTop:2}}>{fmtDateFull(nextApt.date)}{nextApt.time&&` · ${nextApt.time}`}</div>
+{nextApt.location&&<div style={{fontSize:12,color:'#64748B',marginTop:2}}>{nextApt.location}</div>}
+<div style={{display:'inline-block',marginTop:6,background:isToday?'#F59E0B20':'#818CF820',color:isToday?'#FBBF24':'#A5B4FC',fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:8}}>{du}</div>
+</div>
+</div>
+{nextApt.prep&&<div style={{background:'#1a1f2e',borderRadius:0,borderBottomLeftRadius:16,borderBottomRightRadius:16,padding:'10px 16px',border:'1px solid #2a3150',borderTop:'none',fontSize:13,color:'#FBBF24'}}>⚠️ {nextApt.prep}</div>}
+</div>
+)})()}
+{/* Blood Preview */}
+<div onClick={()=>chTab("blood")} style={{cursor:'pointer'}}>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h3 style={{fontSize:13,fontWeight:600,color:'#64748B',letterSpacing:'0.5px',textTransform:'uppercase'}}>Ultimo Emocromo</h3><span style={{fontSize:12,color:'#818CF8',fontWeight:600}}>Dettagli →</span></div>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>{[{l:'WBC',v:'5.8',u:'×10³',ok:true},{l:'Hb',v:'11.8',u:'g/dL',ok:true},{l:'PLT',v:'175',u:'×10³',ok:true}].map((v,i)=><div key={i} style={{background:'#1a1f2e',borderRadius:14,padding:'12px 8px',textAlign:'center',border:'1px solid #2a3150'}}><div style={{fontSize:11,color:'#64748B',fontWeight:600,marginBottom:4}}>{v.l}</div><div style={{fontFamily:"'Space Mono',monospace",fontSize:18,fontWeight:700,color:v.ok?'#34D399':'#F87171'}}>{v.v}</div><div style={{fontSize:10,color:'#475569'}}>{v.u}</div></div>)}</div>
+</div>
+</div>)}
+{/* ══ CALENDAR ══ */}
+{tab==="calendar"&&(<div>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+<h2 style={{fontSize:22,fontWeight:700,color:'#F1F5F9'}}>Appuntamenti</h2>
+<button onClick={()=>openAF(null)} className="btn bp" style={{padding:'8px 16px',fontSize:13}}><I.Plus/> Nuovo</button>
+</div>
+{upcoming.length===0&&past.length===0&&<div className="sec" style={{textAlign:'center',padding:32}}><div style={{fontSize:40,marginBottom:12}}>📅</div><div style={{fontSize:15,fontWeight:600,color:'#F1F5F9',marginBottom:8}}>Nessun appuntamento</div><div style={{fontSize:13,color:'#94A3B8'}}>Gli appuntamenti configurati dal medico appariranno qui</div></div>}
+{upcoming.length>0&&<><h3 style={{fontSize:13,fontWeight:600,color:'#64748B',letterSpacing:'0.5px',textTransform:'uppercase',marginBottom:10}}>Prossimi</h3>
+{upcoming.map(a=>{const t=APT_TYPES[a.type]||APT_TYPES.altro;const du=daysUntil(a.date);const isToday=a.date===today;return(
+<div key={a.id} style={{background:isToday?'linear-gradient(135deg,#312e81,#1e1b4b)':'#1a1f2e',borderRadius:16,padding:16,marginBottom:10,border:`1px solid ${isToday?'#4338ca44':'#2a3150'}`}}>
+<div style={{display:'flex',gap:14,alignItems:'flex-start'}}>
+<div style={{background:`${t.color}20`,borderRadius:14,width:48,height:48,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>{t.emoji}</div>
+<div style={{flex:1}}>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+<div style={{fontWeight:600,fontSize:15,color:'#F1F5F9'}}>{t.label}</div>
+<span style={{background:isToday?'#F59E0B20':'#818CF820',color:isToday?'#FBBF24':'#A5B4FC',fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:8,flexShrink:0}}>{du}</span>
+</div>
+<div style={{fontSize:13,color:'#94A3B8',marginTop:4}}>{fmtDateFull(a.date)}{a.time&&` · ore ${a.time}`}</div>
+{a.doctor&&<div style={{fontSize:13,color:'#94A3B8',marginTop:2}}>{a.doctor}</div>}
+{a.location&&<div style={{fontSize:12,color:'#64748B',marginTop:2}}>📍 {a.location}</div>}
+{a.prep&&<div style={{marginTop:8,background:'#78350F33',borderRadius:10,padding:'8px 12px',fontSize:13,color:'#FBBF24',lineHeight:1.5}}>⚠️ <strong>Preparazione:</strong> {a.prep}</div>}
+{a.notes&&<div style={{fontSize:12,color:'#64748B',marginTop:6}}>📝 {a.notes}</div>}
+</div>
+</div>
+</div>
+)})}</>}
+{past.length>0&&<><h3 style={{fontSize:13,fontWeight:600,color:'#64748B',letterSpacing:'0.5px',textTransform:'uppercase',marginBottom:10,marginTop:20}}>Passati</h3>
+{past.slice(0,5).map(a=>{const t=APT_TYPES[a.type]||APT_TYPES.altro;return(
+<div key={a.id} style={{background:'#1a1f2e',borderRadius:14,padding:14,marginBottom:8,border:'1px solid #2a3150',opacity:0.6}}>
+<div style={{display:'flex',gap:12,alignItems:'center'}}>
+<span style={{fontSize:18}}>{t.emoji}</span>
+<div><div style={{fontWeight:600,fontSize:14,color:'#94A3B8'}}>{t.label}</div><div style={{fontSize:12,color:'#475569'}}>{fmtDate(a.date)}{a.time&&` · ${a.time}`}</div></div>
+</div>
+</div>
+)})}</>}
+</div>)}
+{/* ══ SYMPTOMS ══ */}
+{tab==="symptoms"&&(<div>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+<h2 style={{fontSize:22,fontWeight:700,color:'#F1F5F9'}}>Sintomi</h2>
+{!showSym&&<button onClick={()=>{setShowSym(true);setSymIn({})}} className="btn ba" style={{padding:'10px 18px',fontSize:14}}><I.Plus/> Oggi</button>}
+</div>
+{showSym&&<div className="fade" style={{background:'#1a1f2e',borderRadius:20,padding:20,marginBottom:20,border:'1px solid #F59E0B33'}}>
+<h3 style={{fontSize:15,fontWeight:600,color:'#FBBF24',marginBottom:16}}>Come ti senti oggi?</h3>
+<div style={{display:'flex',flexDirection:'column',gap:14}}>
+{SYMPTOMS.map(s=><div key={s.id}><div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}><span style={{fontSize:18}}>{s.emoji}</span><span style={{fontSize:14,fontWeight:500,color:'#CBD5E1'}}>{s.label}</span></div><Slider value={symIn[s.id]||0} onChange={v=>setSymIn(p=>({...p,[s.id]:v}))} color={s.color}/></div>)}
+</div>
+<div style={{display:'flex',gap:10,marginTop:20}}><button onClick={()=>setShowSym(false)} className="btn bg" style={{flex:1}}>Annulla</button><button onClick={saveSym} className="btn ba" style={{flex:2}}>Salva</button></div>
+</div>}
+{todaySaved&&!showSym&&<div className="fade" style={{background:'#064E3B',borderRadius:14,padding:14,marginBottom:16,display:'flex',alignItems:'center',gap:10,border:'1px solid #065F46'}}><div className="pop" style={{background:'#34D399',borderRadius:99,width:24,height:24,display:'flex',alignItems:'center',justifyContent:'center',color:'#064E3B'}}><I.Check/></div><span style={{color:'#6EE7B7',fontSize:14,fontWeight:500}}>Registrato!</span></div>}
+{symLog.length>0&&<h3 style={{fontSize:13,fontWeight:600,color:'#64748B',marginBottom:10,textTransform:'uppercase',letterSpacing:'0.5px'}}>Storico</h3>}
+{symLog.slice(0,10).map((day,i)=><div key={i} style={{background:'#1a1f2e',borderRadius:14,padding:14,marginBottom:8,border:'1px solid #2a3150'}}>
+<div style={{fontSize:13,color:'#64748B',fontWeight:600,marginBottom:8}}>{fmtDate(day.date)}</div>
+<div style={{display:'flex',flexWrap:'wrap',gap:6}}>{Object.entries(day.symptoms).map(([id,sev],j)=>{const s=SYMPTOMS.find(x=>x.id===id);if(!s)return null;return<div key={j} style={{display:'flex',alignItems:'center',gap:5,background:`${s.color}15`,borderRadius:8,padding:'4px 10px',border:`1px solid ${s.color}25`}}><span style={{fontSize:13}}>{s.emoji}</span><span style={{fontSize:11,color:'#CBD5E1'}}>{s.label}</span><span style={{fontFamily:"'Space Mono',monospace",fontSize:11,fontWeight:700,color:sev>7?'#F87171':sev>4?'#FBBF24':'#34D399'}}>{sev}</span></div>})}</div>
+</div>)}
+</div>)}
+{/* ══ MEDS ══ */}
+{tab==="meds"&&(<div>
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+<h2 style={{fontSize:22,fontWeight:700,color:'#F1F5F9'}}>Terapia</h2>
+<button onClick={()=>openMF(null)} className="btn bp" style={{padding:'8px 16px',fontSize:13}}><I.Plus/> Aggiungi</button>
+</div>
+<p style={{fontSize:13,color:'#64748B',marginBottom:20}}>{totalD?`${takenD}/${totalD} dosi assunte oggi`:'Nessun farmaco'}</p>
+{meds.length===0&&<div className="sec" style={{textAlign:'center',padding:32}}><div style={{fontSize:40,marginBottom:12}}>💊</div><div style={{fontSize:15,fontWeight:600,color:'#F1F5F9'}}>Nessun farmaco</div></div>}
+{["Mattina","Mezzogiorno","Sera"].map((period,pi)=>{
+const icon=pi===0?<I.Sun/>:pi===2?<I.Moon/>:<I.Clock/>;
+const pm=[];meds.forEach(m=>{m.times.forEach((t,ti)=>{const h=parseInt(t);if((pi===0&&h<12)||(pi===1&&h>=12&&h<17)||(pi===2&&h>=17))pm.push({...m,timeIdx:ti,time:t})})});
+if(!pm.length)return null;
+return<div key={pi} style={{marginBottom:16}}><div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,color:'#64748B'}}>{icon}<span style={{fontSize:13,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.5px'}}>{period}</span></div>
+{pm.map((m,mi)=>{const tk=!!taken[`${m.id}-${m.timeIdx}`];return<div key={mi} style={{background:tk?'#064E3B':'#1a1f2e',borderRadius:16,padding:14,marginBottom:8,border:`1px solid ${tk?'#065F46':'#2a3150'}`,display:'flex',alignItems:'center',gap:12}}>
+<div className="card" onClick={()=>toggleTk(m.id,m.timeIdx)} style={{width:42,height:42,borderRadius:13,background:tk?'#34D399':`${m.color}20`,display:'flex',alignItems:'center',justifyContent:'center',color:tk?'#064E3B':m.color,flexShrink:0,cursor:'pointer'}}>{tk?<span className="pop"><I.Check/></span>:<I.Pill/>}</div>
+<div style={{flex:1,minWidth:0,cursor:'pointer'}} onClick={()=>toggleTk(m.id,m.timeIdx)}>
+<div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontWeight:600,fontSize:15,color:tk?'#6EE7B7':'#F1F5F9'}}>{m.name}</span><span style={{fontFamily:"'Space Mono',monospace",fontSize:13,color:'#64748B'}}>{m.time}</span></div>
+<div style={{fontSize:12,color:tk?'#6EE7B799':'#94A3B8',marginTop:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.dose}{m.notes&&` · ${m.notes}`}</div>
+</div>
+<button onClick={()=>openMF(m)} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',padding:4}}><I.Edit/></button>
+</div>})}
+</div>})}
+</div>)}
+{/* ══ BLOOD ══ */}
+{tab==="blood"&&(<div>
+<h2 style={{fontSize:22,fontWeight:700,color:'#F1F5F9',marginBottom:4}}>Emocromo</h2>
+<p style={{fontSize:13,color:'#64748B',marginBottom:20}}>Andamento valori</p>
+<div style={{display:'flex',gap:6,marginBottom:20,background:'#1a1f2e',padding:4,borderRadius:14}}>{[{k:'wbc',l:'Leucociti'},{k:'hb',l:'Emoglobina'},{k:'plt',l:'Piastrine'}].map(t=><button key={t.k} onClick={()=>setBT(t.k)} style={{flex:1,padding:'10px 6px',borderRadius:11,border:'none',background:bt===t.k?'#2a3150':'transparent',color:bt===t.k?'#F1F5F9':'#64748B',fontSize:13,fontWeight:600,cursor:'pointer'}}>{t.l}</button>)}</div>
+{bt==="wbc"&&<BloodChart data={DEMO_BLOOD.wbc} color="#3B82F6" normalMin={4.0} normalMax={10.0} unit="×10³/μL" label="WBC — Leucociti"/>}
+{bt==="hb"&&<BloodChart data={DEMO_BLOOD.hb} color="#EF4444" normalMin={12.0} normalMax={16.0} unit="g/dL" label="Hb — Emoglobina"/>}
+{bt==="plt"&&<BloodChart data={DEMO_BLOOD.plt} color="#8B5CF6" normalMin={150} normalMax={400} unit="×10³/μL" label="PLT — Piastrine"/>}
+<div style={{background:'#1a1f2e',borderRadius:16,padding:16,marginTop:4,border:'1px solid #2a3150',fontSize:13,color:'#94A3B8',lineHeight:1.7}}>
+{bt==='wbc'&&<>I leucociti combattono le infezioni. La <strong style={{color:'#CBD5E1'}}>zona ombreggiata</strong> = valori normali (4.0–10.0).</>}
+{bt==='hb'&&<>L'emoglobina trasporta ossigeno. Valori normali: 12.0–16.0 g/dL.</>}
+{bt==='plt'&&<>Le piastrine aiutano la coagulazione. Valori normali: 150–400 ×10³/μL.</>}
+</div>
+</div>)}
+{/* ══ SETTINGS ══ */}
+{tab==="settings"&&(<div>
+<h2 style={{fontSize:22,fontWeight:700,color:'#F1F5F9',marginBottom:20}}>Impostazioni</h2>
+<div className="sec"><label className="lb">Nome</label><input type="text" value={patientName} onChange={e=>{setPN(e.target.value);S.set('name',e.target.value)}}/></div>
+<div className="sec">
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}><span style={{fontSize:15,fontWeight:600,color:'#F1F5F9'}}>💊 Farmaci</span><button onClick={()=>openMF(null)} style={{background:'#818CF820',border:'none',borderRadius:10,padding:'6px 12px',color:'#818CF8',fontSize:13,fontWeight:600,cursor:'pointer'}}><I.Plus/> Nuovo</button></div>
+{meds.length===0&&<p style={{fontSize:13,color:'#475569'}}>Nessun farmaco</p>}
+{meds.map(m=><div key={m.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderTop:'1px solid #2a3150'}}><div style={{width:32,height:32,borderRadius:8,background:`${m.color}20`,display:'flex',alignItems:'center',justifyContent:'center',color:m.color,flexShrink:0,fontSize:14}}><I.Pill/></div><div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:14,color:'#F1F5F9'}}>{m.name}</div><div style={{fontSize:11,color:'#94A3B8'}}>{m.dose} · {m.times.join(', ')}</div></div><button onClick={()=>openMF(m)} style={{background:'none',border:'none',color:'#64748B',cursor:'pointer'}}><I.Edit/></button><button onClick={()=>{const n=meds.filter(x=>x.id!==m.id);setMeds(n);S.set('meds',n)}} style={{background:'none',border:'none',color:'#EF4444',cursor:'pointer'}}><I.Trash/></button></div>)}
+</div>
+<div className="sec">
+<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}><span style={{fontSize:15,fontWeight:600,color:'#F1F5F9'}}>📅 Appuntamenti</span><button onClick={()=>openAF(null)} style={{background:'#818CF820',border:'none',borderRadius:10,padding:'6px 12px',color:'#818CF8',fontSize:13,fontWeight:600,cursor:'pointer'}}><I.Plus/> Nuovo</button></div>
+{apts.length===0&&<p style={{fontSize:13,color:'#475569'}}>Nessun appuntamento</p>}
+{apts.sort((a,b)=>a.date.localeCompare(b.date)).map(a=>{const t=APT_TYPES[a.type]||APT_TYPES.altro;return<div key={a.id} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderTop:'1px solid #2a3150'}}><span style={{fontSize:16}}>{t.emoji}</span><div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:14,color:'#F1F5F9'}}>{t.label}</div><div style={{fontSize:11,color:'#94A3B8'}}>{fmtDate(a.date)}{a.time&&` · ${a.time}`}{a.location&&` · ${a.location}`}</div></div><button onClick={()=>openAF(a)} style={{background:'none',border:'none',color:'#64748B',cursor:'pointer'}}><I.Edit/></button><button onClick={()=>{const n=apts.filter(x=>x.id!==a.id);setApts(n);S.set('apts',n)}} style={{background:'none',border:'none',color:'#EF4444',cursor:'pointer'}}><I.Trash/></button></div>})}
+</div>
+<button onClick={()=>{['setup','name','meds','apts','slog','tk_'+S.today()].forEach(k=>localStorage.removeItem('hl_'+k));location.reload()}} className="btn bd" style={{width:'100%',marginTop:8}}>Reimposta tutto</button>
+</div>)}
+</div>
+</main>
+{/* TAB BAR - 5 tabs now */}
+<nav className="sb" style={{background:'#151a27f0',backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',borderTop:'1px solid #1e2536',padding:'6px 8px 0',display:'flex',justifyContent:'space-around',zIndex:100,flexShrink:0}}>
+{[{id:"home",l:"Home",i:<I.Home/>},{id:"calendar",l:"Agenda",i:<I.Cal/>},{id:"symptoms",l:"Sintomi",i:<I.Heart/>},{id:"meds",l:"Terapia",i:<I.Pill/>},{id:"blood",l:"Valori",i:<I.Chart/>}].map(t=>(
+<button key={t.id} onClick={()=>chTab(t.id)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:3,color:tab===t.id?'#818CF8':'#475569',position:'relative',padding:'6px 10px'}}>
+{tab===t.id&&<div style={{position:'absolute',top:-1,width:18,height:3,background:'#818CF8',borderRadius:99}}/>}
+{t.i}<span style={{fontSize:10,fontWeight:tab===t.id?700:500}}>{t.l}</span>
+</button>
+))}
+</nav>
+{/* Modals */}
+{medForm!==null&&(<div className="mo" onClick={e=>{if(e.target===e.currentTarget)setMedForm(null)}}><div className="ms"><div className="hd"/>
+<h2 style={{fontSize:20,fontWeight:700,color:'#F1F5F9',marginBottom:20}}>{medForm?.id?'Modifica':'Nuovo'} Farmaco</h2>
+<div style={{display:'flex',flexDirection:'column',gap:14}}>
+<div><label className="lb">Nome *</label><input type="text" value={mfN} onChange={e=>setMfN(e.target.value)} placeholder="es. Ruxolitinib"/></div>
+<div><label className="lb">Dosaggio</label><input type="text" value={mfD} onChange={e=>setMfD(e.target.value)} placeholder="es. 20mg"/></div>
+<div><label className="lb">Orari</label>{mfT.map((t,i)=><div key={i} style={{display:'flex',gap:8,marginBottom:8}}><input type="time" value={t} onChange={e=>{const n=[...mfT];n[i]=e.target.value;setMfT(n)}} style={{flex:1}}/>{mfT.length>1&&<button onClick={()=>setMfT(mfT.filter((_,j)=>j!==i))} style={{background:'#7F1D1D',border:'none',borderRadius:10,width:40,height:44,color:'#F87171',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><I.Trash/></button>}</div>)}<button onClick={()=>setMfT([...mfT,'12:00'])} style={{background:'none',border:'1.5px dashed #2a3150',borderRadius:12,padding:10,width:'100%',color:'#818CF8',fontSize:14,fontWeight:600,cursor:'pointer'}}>+ Orario</button></div>
+<div><label className="lb">Note</label><input type="text" value={mfNt} onChange={e=>setMfNt(e.target.value)} placeholder="es. Con pasto ricco di grassi"/></div>
+</div>
+<div style={{display:'flex',gap:10,marginTop:20}}>{medForm?.id&&<button onClick={()=>{const n=meds.filter(m=>m.id!==medForm.id);setMeds(n);S.set('meds',n);setMedForm(null)}} className="btn bd" style={{padding:'14px'}}>Elimina</button>}<button onClick={()=>setMedForm(null)} className="btn bg" style={{flex:1}}>Annulla</button><button onClick={saveMF} className="btn bp" style={{flex:2}}>Salva</button></div>
+</div></div>)}
+{aptForm!==null&&(<div className="mo" onClick={e=>{if(e.target===e.currentTarget)setAptForm(null)}}><div className="ms"><div className="hd"/>
+<h2 style={{fontSize:20,fontWeight:700,color:'#F1F5F9',marginBottom:20}}>{aptForm?.id?'Modifica':'Nuovo'} Appuntamento</h2>
+<div style={{display:'flex',flexDirection:'column',gap:14}}>
+<div><label className="lb">Tipo</label><select value={afType} onChange={e=>setAFT(e.target.value)}>{Object.entries(APT_TYPES).map(([k,v])=><option key={k} value={k}>{v.emoji} {v.label}</option>)}</select></div>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}><div><label className="lb">Data *</label><input type="date" value={afDate} onChange={e=>setAFD(e.target.value)}/></div><div><label className="lb">Ora</label><input type="time" value={afTime} onChange={e=>setAFTm(e.target.value)}/></div></div>
+<div><label className="lb">Luogo</label><input type="text" value={afLoc} onChange={e=>setAFL(e.target.value)} placeholder="es. Ambulatorio 3, IOV Padova"/></div>
+<div><label className="lb">Medico</label><input type="text" value={afDoc} onChange={e=>setAFDc(e.target.value)} placeholder="es. Dott.ssa Rossi"/></div>
+<div><label className="lb">Preparazione paziente</label><textarea value={afPrep} onChange={e=>setAFP(e.target.value)} placeholder="es. Digiuno da 12 ore, portare esami precedenti"/></div>
+<div><label className="lb">Note</label><input type="text" value={afNotes} onChange={e=>setAFN(e.target.value)} placeholder="es. Portare lista farmaci"/></div>
+</div>
+<div style={{display:'flex',gap:10,marginTop:20}}>{aptForm?.id&&<button onClick={()=>{const n=apts.filter(a=>a.id!==aptForm.id);setApts(n);S.set('apts',n);setAptForm(null)}} className="btn bd" style={{padding:'14px'}}>Elimina</button>}<button onClick={()=>setAptForm(null)} className="btn bg" style={{flex:1}}>Annulla</button><button onClick={saveAF} className="btn bp" style={{flex:2}}>Salva</button></div>
+</div></div>)}
+</div>
+);
+}
+/* ══════════ ROUTER ══════════ */
+function App(){
+const isDoctor=new URLSearchParams(window.location.search).get('doctor')==='1';
+return isDoctor?<DoctorPanel/>:<PatientApp/>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
